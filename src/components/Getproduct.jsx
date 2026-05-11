@@ -6,8 +6,9 @@ import Addfooter from './footer'
 import { CartContext } from '../CartContext'
 
 const Getproduct = () => {
+
   const navigate = useNavigate()
-  const { addToCart } = useContext(CartContext) // 🛒 CART
+  const { addToCart } = useContext(CartContext)
 
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [loading, setLoading] = useState("")
@@ -15,21 +16,27 @@ const Getproduct = () => {
   const [error, setError] = useState("")
   const [visibleCount, setVisibleCount] = useState(8)
   const [searchTerm, setSearchTerm] = useState("")
-  const [showSearch, setShowSearch] = useState(false)
 
-  const imagepath = "http://murayambuni.alwaysdata.net/static/images/"
+  const imagepath =
+    "http://murayambuni.alwaysdata.net/static/images/"
 
-  // fetch products
+  // FETCH PRODUCTS
   const getproducts = async () => {
-    setLoading("Please Wait...")
+
+    setLoading("Loading amazing games...")
+
     try {
+
       const response = await axios.get(
         "http://murayambuni.alwaysdata.net/api/getproducts"
       )
+
       setProducts(response.data)
       setLoading("")
+
     } catch (error) {
-      setError("Something went wrong")
+
+      setError("Failed to load products")
       setLoading("")
     }
   }
@@ -42,120 +49,282 @@ const Getproduct = () => {
     setVisibleCount(8)
   }, [selectedCategory])
 
+  // FILTER PRODUCTS
   const filteredProducts =
+
     (selectedCategory === "all"
       ? products
-      : products.filter(p => p.category === selectedCategory)
+      : products.filter(
+          p => p.category === selectedCategory
+        )
     ).filter(p =>
-      p.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+      p.product_name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
     )
 
-  const visibleProducts = filteredProducts.slice(0, visibleCount)
+  const visibleProducts =
+    filteredProducts.slice(0, visibleCount)
 
   return (
-    <div className="px-6 py-10">
 
-      <Carousel />
+    <div className="container-fluid px-lg-5 px-3 py-5">
 
-      <h2 className="text-warning">{loading}</h2>
-      <h2 className="text-danger">{error}</h2>
+      {/* TOP CAROUSEL */}
+      <div className="mb-5">
+        <Carousel />
+      </div>
 
-      {/* categories + search */}
-      <div className="mb-3 d-flex justify-content-between flex-wrap">
+      {/* SECTION HEADER */}
+      <div className="mb-5">
 
-        <div>
-          <button onClick={() => setSelectedCategory("all")} className="btn btn-secondary me-2">All</button>
-          <button onClick={() => setSelectedCategory("games")} className="btn btn-secondary me-2">Games</button>
-          <button onClick={() => setSelectedCategory("consoles")} className="btn btn-secondary me-2">Consoles</button>
-          <button onClick={() => setSelectedCategory("pc")} className="btn btn-secondary">PC</button>
+        <h2
+          style={{
+            color: "#39FF14",
+            fontFamily: "'Orbitron', sans-serif",
+            fontWeight: "700"
+          }}
+        >
+          Featured Games & Gear
+        </h2>
+
+        <p style={{ color: "#9ca3af" }}>
+          Explore the latest games, consoles, and gaming accessories.
+        </p>
+
+      </div>
+
+      {/* LOADING + ERROR */}
+      <h5 className="text-warning mb-3">
+        {loading}
+      </h5>
+
+      <h5 className="text-danger mb-3">
+        {error}
+      </h5>
+
+      {/* FILTER SECTION */}
+      <div
+        className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-5"
+      >
+
+        {/* CATEGORY BUTTONS */}
+        <div className="d-flex flex-wrap gap-2">
+
+          <button
+            onClick={() => setSelectedCategory("all")}
+            className={`btn ${
+              selectedCategory === "all"
+                ? "btn-success"
+                : "btn-outline-light"
+            }`}
+          >
+            All
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory("games")}
+            className={`btn ${
+              selectedCategory === "games"
+                ? "btn-success"
+                : "btn-outline-light"
+            }`}
+          >
+            🎮 Games
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory("consoles")}
+            className={`btn ${
+              selectedCategory === "consoles"
+                ? "btn-success"
+                : "btn-outline-light"
+            }`}
+          >
+            🕹 Consoles
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory("pc")}
+            className={`btn ${
+              selectedCategory === "pc"
+                ? "btn-success"
+                : "btn-outline-light"
+            }`}
+          >
+            💻 PC Gaming
+          </button>
+
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <button
-            onClick={() => setShowSearch(!showSearch)}
-            style={{ border: "none", background: "none", fontSize: "20px", color: "#39FF14" }}
-          >
-            🔍
-          </button>
+        {/* SEARCH */}
+        <div
+          style={{
+            width: "280px"
+          }}
+        >
 
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search games..."
+            className="form-control"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: showSearch ? "200px" : "0px",
-              opacity: showSearch ? 1 : 0,
-              transition: "0.3s",
-              padding: showSearch ? "5px" : "0px",
-              border: showSearch ? "1px solid #ccc" : "none",
-              borderRadius: "5px"
-            }}
+            onChange={(e) =>
+              setSearchTerm(e.target.value)
+            }
           />
+
         </div>
+
       </div>
 
-      {/* products */}
-      <div className="row">
+      {/* PRODUCTS GRID */}
+      <div className="row g-4">
+
         {visibleProducts.map((singleproduct, index) => (
-          <div className="col-md-3 mb-4" key={index}>
-            <div className="card h-100 bg-dark text-light">
 
-              <img
-                src={imagepath + singleproduct.product_photo}
-                alt={singleproduct.product_name}
-                style={{ height: "150px", objectFit: "contain" }}
-              />
+          <div
+            className="col-xl-3 col-lg-4 col-md-6"
+            key={index}
+          >
 
-              <div className="card-body">
-                <h5 className="product-title">
+            <div className="card h-100">
+
+              {/* PRODUCT IMAGE */}
+              <div
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(0,247,255,0.08), transparent)"
+                }}
+              >
+
+                <img
+                  src={
+                    imagepath +
+                    singleproduct.product_photo
+                  }
+                  alt={singleproduct.product_name}
+                  className="card-img-top"
+                />
+
+              </div>
+
+              {/* CARD BODY */}
+              <div className="card-body d-flex flex-column">
+
+                {/* CATEGORY */}
+                <span
+                  className="mb-2"
+                  style={{
+                    color: "#00f7ff",
+                    fontSize: "13px",
+                    fontWeight: "600",
+                    textTransform: "uppercase"
+                  }}
+                >
+                  {singleproduct.category}
+                </span>
+
+                {/* PRODUCT TITLE */}
+                <h5 className="product-title mb-3">
                   {singleproduct.product_name}
                 </h5>
 
-                <p>{singleproduct.product_description}</p>
-
-                <b>Ksh {singleproduct.product_cost}</b>
-                <br />
-
-                {/* 🛒 ADD TO CART BUTTON */}
-                <button
-                  className="btn mt-2 me-2 neon-btn"
-                  onClick={() => addToCart(singleproduct)}
+                {/* DESCRIPTION */}
+                <p
+                  style={{
+                    color: "#9ca3af",
+                    flexGrow: 1
+                  }}
                 >
-                  Add to Cart 🛒
-                </button>
-
-                {/* PURCHASE BUTTON */}
-                <button
-                  className="btn mt-2 neon-btn"
-                  onClick={() =>
-                    navigate("/makepayment", {
-                      state: { singleproduct }
-                    })
+                  {
+                    singleproduct.product_description
                   }
+                </p>
+
+                {/* PRICE */}
+                <h4
+                  style={{
+                    color: "#39FF14",
+                    fontWeight: "700"
+                  }}
                 >
-                  Purchase Now
-                </button>
+                  Ksh {singleproduct.product_cost}
+                </h4>
+
+                {/* BUTTONS */}
+                <div className="d-grid gap-2 mt-3">
+
+                  {/* ADD TO CART */}
+                  <button
+                    className="btn btn-success"
+                    onClick={() =>
+                      addToCart(singleproduct)
+                    }
+                  >
+                    Add To Cart 🛒
+                  </button>
+
+                  {/* PURCHASE */}
+                  <button
+                    className="btn btn-outline-light"
+                    onClick={() =>
+                      navigate("/makepayment", {
+                        state: { singleproduct }
+                      })
+                    }
+                  >
+                    Buy Now
+                  </button>
+
+                </div>
 
               </div>
+
             </div>
+
           </div>
+
         ))}
+
       </div>
 
-      {/* load more */}
+      {/* LOAD MORE */}
       {visibleCount < filteredProducts.length && (
-        <div className="text-center mt-3">
+
+        <div className="text-center mt-5">
+
           <button
-            className="btn btn-success"
-            onClick={() => setVisibleCount(prev => prev + 4)}
+            className="btn btn-success px-5 py-3"
+            onClick={() =>
+              setVisibleCount(prev => prev + 4)
+            }
           >
-            Load More
+            Load More Games
           </button>
+
         </div>
+
       )}
 
-      <Addfooter />
+      {/* EMPTY */}
+      {filteredProducts.length === 0 && (
+
+        <div className="text-center py-5">
+
+          <h3 style={{ color: "#9ca3af" }}>
+            No products found
+          </h3>
+
+        </div>
+
+      )}
+
+      {/* FOOTER */}
+      <div className="mt-5">
+        <Addfooter />
+      </div>
+
     </div>
   )
 }

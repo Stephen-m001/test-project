@@ -1,14 +1,12 @@
 import axios from 'axios'
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useLocation, Link } from 'react-router-dom'
-import { useContext } from 'react'
 import { CartContext } from '../CartContext'
 
 const Mpesapayment = () => {
+
   const locationState = useLocation().state || {}
   const { singleproduct: singleFromState, cart: cartFromState } = locationState
-
-  // fallback to context (and localStorage) if state not provided
   const { cart: cartFromContext } = useContext(CartContext)
 
   const singleproduct = singleFromState
@@ -16,102 +14,152 @@ const Mpesapayment = () => {
 
   const imagepath = "http://murayambuni.alwaysdata.net/static/images/"
 
-  // declare the states here 
   const [phone, setPhone] = useState("")
-  
-  // 3 states of posting data 
   const [loading, setLoading] = useState("")
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
 
-  // compute amount: if cart is present sum items, otherwise use singleproduct
-  const computeAmount = () => {
-    if (Array.isArray(cart) && cart.length > 0) {
-      return cart.reduce((sum, item) => {
-        const cost = Number(item.product_cost) || 0
-        const qty = Number(item.qty) || 1
-        return sum + cost * qty
-      }, 0)
-    }
+  const amount = Array.isArray(cart) && cart.length > 0
+    ? cart.reduce((sum, item) => sum + (item.product_cost * item.qty), 0)
+    : (singleproduct ? singleproduct.product_cost : 0)
 
-    if (singleproduct) {
-      return Number(singleproduct.product_cost) || 0
-    }
-
-    return 0
-  }
-
-  const amount = computeAmount()
-
-  // function to handle submit
   const handlesubmit = async (e) => {
     e.preventDefault()
-    const formdata = new FormData()
-    setLoading("please Wait...")
+    setLoading("Processing payment...")
 
+    const formdata = new FormData()
     formdata.append("amount", amount)
     formdata.append("phone", phone)
 
     try {
-      const response = await axios.post("http://murayambuni.alwaysdata.net/api/mpesa_payment", formdata)
+      const response = await axios.post(
+        "http://murayambuni.alwaysdata.net/api/mpesa_payment",
+        formdata
+      )
       setSuccess(response.data.message)
-      setLoading("")
+      setError("")
     } catch (err) {
-      setError(err.message)
+      setError("Payment failed. Try again.")
+      setSuccess("")
+    } finally {
       setLoading("")
     }
   }
 
-  // render fallback when no data provided
   if (!singleproduct && (!Array.isArray(cart) || cart.length === 0)) {
     return (
-      <div className="row justify-content-center">
-        <div className="card shadow col-md-8 p-4 text-center">
-          <h3>No product or cart provided for payment</h3>
-          <p>Please go back to the <Link to="/">products page</Link> and try again.</p>
-        </div>
+      <div className="text-center text-light mt-5">
+        <h4>No payment data found</h4>
+        <Link to="/" className="btn btn-success mt-3">Back to Store</Link>
       </div>
     )
   }
 
   return (
-    <div className="row justify-content-center">
-      <h1>Make payment - Lipa na MPesa</h1>
-      <div className="card shadow col-md-8 p-4">
-        {singleproduct ? (
-          <>
-            <img src={imagepath + singleproduct.product_photo} alt="" style={{ height: "250px", objectFit: "contain" }} />
-            <h5 className='text-start text-success'>{singleproduct.product_name}</h5>
-            <p className="text-start ">{singleproduct.product_description}</p>
-            <b className="text-success text-start">Ksh.{singleproduct.product_cost}</b>
-          </>
-        ) : (
-          <>
-            <h5 className="text-start text-success">Your Cart</h5>
-            {cart.map((item, idx) => (
-              <div key={idx} className="d-flex justify-content-between">
-                <div>
-                  <div>{item.product_name} x {item.qty}</div>
-                </div>
-                <div>Ksh {Number(item.product_cost) * Number(item.qty)}</div>
+    <div className="container text-light mt-4">
+
+      <h2 className="text-success mb-4">💳 Checkout - MPesa Payment</h2>
+
+      <div className="row">
+
+        {/* LEFT - ORDER SUMMARY */}
+        <div className="col-md-6 mb-3">
+
+          <div className="card bg-dark text-light p-3 shadow-lg border-success">
+
+            <h4 className="text-success">Order Summary</h4>
+            <hr className="border-success" />
+
+            {singleproduct ? (
+              <div>
+                <img
+                  src={imagepath + singleproduct.product_photo}
+                  alt=""
+                  className="img-fluid mb-2"
+                  style={{ height: "200px", objectFit: "contain" }}
+                />
+                <h5>{singleproduct.product_name}</h5>
+                <p className="text-muted">{singleproduct.product_description}</p>
+                <h5 className="text-warning">Ksh {singleproduct.product_cost}</h5>
               </div>
-            ))}
-            <hr />
-            <h5 className="text-end">Total: <span className="text-warning">Ksh {amount}</span></h5>
-          </>
-        )}
+            ) : (
+              <>
+                {cart.map((item, idx) => (
+                  <div key={idx} className="d-flex justify-content-between mb-2">
+                    <span>{item.product_name} x {item.qty}</span>
+                    <span>Ksh {item.product_cost * item.qty}</span>
+                  </div>
+                ))}
 
-        {/* bind the states  */}
-        <h2 className="text-warning">{loading}</h2>
-        <h2 className="text-success">{success}</h2>
-        <h2 className="text-danger">{error}</h2>
+                <hr className="border-success" />
 
-        <form action="" onSubmit={handlesubmit} >
-          <input type="tel" className="form-control" placeholder='Enter phone 254xxxxxxxx' onChange={(e) => setPhone(e.target.value)} /><br />
-          <button className="btn btn-success w-100" type='submit' >Make Payment Ksh {amount}</button>
-        </form>
+                <h4>
+                  Total: <span className="text-warning glow">{amount}</span>
+                </h4>
+              </>
+            )}
+
+          </div>
+
+        </div>
+
+        {/* RIGHT - PAYMENT FORM */}
+        <div className="col-md-6">
+
+          <div className="card bg-black text-light p-4 shadow-lg border-success">
+
+            <h4 className="text-success">Pay with MPesa</h4>
+
+            <form onSubmit={handlesubmit} className="mt-3">
+
+              <input
+                type="tel"
+                className="form-control mb-3"
+                placeholder="2547XXXXXXXX"
+                onChange={(e) => setPhone(e.target.value)}
+              />
+
+              <button className="btn btn-success w-100 glow-btn">
+                Pay Ksh {amount}
+              </button>
+
+            </form>
+
+            {/* STATUS */}
+            {loading && <p className="text-warning mt-3">{loading}</p>}
+            {success && <p className="text-success mt-3">{success}</p>}
+            {error && <p className="text-danger mt-3">{error}</p>}
+
+          </div>
+
+        </div>
 
       </div>
+
+      {/* STYLE */}
+      <style>{`
+        .border-success {
+          border: 1px solid rgba(0,255,136,0.3) !important;
+        }
+
+        .glow {
+          text-shadow: 0 0 10px #00ff88;
+        }
+
+        .glow-btn {
+          background: linear-gradient(45deg, #00ff88, #00c853);
+          border: none;
+          font-weight: bold;
+          box-shadow: 0 0 10px #00ff88;
+        }
+
+        .glow-btn:hover {
+          transform: scale(1.03);
+          transition: 0.3s;
+          box-shadow: 0 0 20px #00ff88;
+        }
+      `}</style>
+
     </div>
   )
 }

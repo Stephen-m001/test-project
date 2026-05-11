@@ -1,54 +1,81 @@
-// import logo from './logo.svg';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.min.js';
-// import { FaFacebook, FaInstagram, FaXTwitter } from "react-icons/fa6";
-import { BrowserRouter, Routes, Route,  } from 'react-router-dom';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 import Signup from './components/Signup';
 import Signin from './components/Signin';
 import Addproduct from './components/Addproduct';
 import Getproduct from './components/Getproduct';
 import Mpesapayment from './components/Mpesapayment';
 import Navbar from './components/Navbar';
-import CartPage from './components/CartPage'
-// import Carousel from './components/Carousel';
-// import Addfooter from './components/footer';
+import CartPage from './components/CartPage';
+
 import { CartProvider } from "./CartContext";
 
 function App() {
   return (
-
     <CartProvider>
-      <BrowserRouter>   
-        <div className="App">
-          {/* navbar goes here  */}
-           <Navbar /> 
-      <header className="App-header">
-       <h1  style={{color:"#39FF14"}}>Welcome To Zuri Gaming</h1>       
-      </header>
-      {/* carousel */}
-      
-      {/* <nav>
-        <Link to="/" className='btn  text-dark m-1' style={{backgroundColor: "#00FF7F"}}>Get products</Link>
-        <Link to="/signup" className='btn  text-dark m-1' style={{backgroundColor: "#00FF7F"}}>Signup</Link>
-        <Link to="/signin" className='btn  text-dark m-1' style={{backgroundColor: "#00FF7F"}}>Signin</Link>
-        <Link to="/addproduct" className='btn  text-dark m-1' style={{backgroundColor: "#00FF7F"}}>Addproduct</Link>
-      </nav> */}
-      <Routes>
-        <Route path='/' element={<Getproduct />} />
-        <Route path='/signup' element={<Signup />} />
-        <Route path='/signin' element={<Signin />} />
-        <Route path='/addproduct' element={<Addproduct />} />
-        <Route path='/makepayment' element={<Mpesapayment />} />
-        <Route path="/cart" element={<CartPage />} />
-        
-      </Routes>
-    </div>
-    
-    </BrowserRouter>
+      <BrowserRouter>
+        <div className="app-container">
+
+          {/* Navbar */}
+          <Navbar />
+
+          {/* Hero Section */}
+          <section className="hero-section">
+            <div className="hero-overlay">
+              <div className="container">
+                <div className="hero-content">
+                  <h1 className="hero-title">
+                    LEVEL UP YOUR GAMING
+                  </h1>
+
+                  <p className="hero-text">
+                    Discover top games, gaming accessories, consoles,
+                    and exclusive deals only at Zuri Gaming.
+                  </p>
+
+                  <button className="shop-btn">
+                    Shop Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Main Content */}
+          <div className="main-content">
+            <Routes>
+              <Route path='/' element={<Getproduct />} />
+              <Route path='/signup' element={<Signup />} />
+              <Route path='/signin' element={<Signin />} />
+              <Route path='/addproduct' element={<Addproduct />} />
+              <Route path='/makepayment' element={<Mpesapayment />} />
+              <Route path='/cart' element={<CartPage />} />
+            </Routes>
+          </div>
+
+          {/* Footer */}
+          <footer className="footer">
+            <div className="container">
+              <h4>Zuri Gaming</h4>
+
+              <p>
+                Your ultimate gaming destination.
+              </p>
+
+              <small>
+                © 2026 Zuri Gaming. All rights reserved.
+              </small>
+            </div>
+          </footer>
+
+        </div>
+      </BrowserRouter>
     </CartProvider>
   );
-   
 }
 
 export default App;
