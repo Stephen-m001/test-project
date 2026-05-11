@@ -1,0 +1,36 @@
+/* Import a gaming-friendly font stack */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Montserrat:wght@300;400;600&display=swap');
+
+:root{
+  --bg-1: #05060a; /* deep */
+  --bg-2: #0f1014; /* soft */
+  --accent: #39ff14; /* neon green */
+  --accent-2: #00b3ff; /* neon blue */
+  --muted: #9aa0a6;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(57,255,20,0.03), transparent),
+              linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  color: #e6eef7;
+  font-family: 'Montserrat', 'Orbitron', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Utility container */
+.zg-container{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Small helper */
+.muted{ color: var(--muted); }
